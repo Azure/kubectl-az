@@ -83,6 +83,9 @@ func AddNodeFlags(command *cobra.Command, vm *VirtualMachineScaleSetVM) {
 			if resourceID != "" {
 				return errors.New("specify either --node or --id but not both")
 			}
+			if subscriptionID != "" || nodeResourceGroup != "" || vmScaleSet != "" || instanceID != "" {
+				return errors.New("do not provide VMMS instance information (--subscription, --node-resource-group, --vmss and --instance-id) when --node is provided")
+			}
 
 			var err error
 			resourceID, err = GetNodeResourceID(context.TODO(), node)
@@ -94,7 +97,7 @@ func AddNodeFlags(command *cobra.Command, vm *VirtualMachineScaleSetVM) {
 
 		if subscriptionID != "" && nodeResourceGroup != "" && vmScaleSet != "" && instanceID != "" {
 			if resourceID != "" {
-				return errors.New("do not provide VMMS instance information (--subscription, --node-resource-group, --vmss and --instance-id) when --node or --id were provided")
+				return errors.New("do not provide VMMS instance information (--subscription, --node-resource-group, --vmss and --instance-id) when --id is provided")
 			}
 
 			vm.SubscriptionID = subscriptionID
@@ -106,7 +109,7 @@ func AddNodeFlags(command *cobra.Command, vm *VirtualMachineScaleSetVM) {
 				return fmt.Errorf("failed to parse resource id: %w", err)
 			}
 		} else {
-			return errors.New("specify either --node or --id or VMMS instance information (--subscription, --node-resource-group, --vmss and --instance-id)")
+			return errors.New("must provide either --node or --id or VMMS instance information (--subscription, --node-resource-group, --vmss and --instance-id)")
 		}
 
 		return nil
